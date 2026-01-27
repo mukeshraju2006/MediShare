@@ -43,7 +43,7 @@ export default function App() {
     };
     setClinics([...clinics, newClinic]);
     // Auto-login after registration
-    setSelectedClinic(newClinic);
+    // setSelectedClinic(newClinic);
   };
 
   // Medicine Handler
@@ -193,8 +193,18 @@ export default function App() {
   };
 
   if (!selectedClinic) {
-    return <AuthPage clinics={clinics} onLogin={handleLogin} onRegister={handleRegister} />;
-  }
+  return (
+    <>
+      <AuthPage
+        clinics={clinics}
+        onLogin={handleLogin}
+        onRegister={handleRegister}
+      />
+      <Toaster richColors position="top-center" />
+    </>
+  );
+}
+
 
   return (
     <div className="min-h-screen bg-gray-50">
