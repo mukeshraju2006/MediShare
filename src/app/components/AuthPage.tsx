@@ -157,9 +157,9 @@ export function AuthPage({ clinics, onLogin, onRegister }: AuthPageProps) {
                 </Button>
                 <div className="text-sm text-center text-muted-foreground">
                   <p>Demo credentials:</p>
-                  <p className="font-mono text-xs mt-1">priya@sevasadan.org</p>
-                  <p className="font-mono text-xs">rajesh@gramswasthya.gov.in</p>
-                  <p className="font-mono text-xs">anjali@hopefoundation.org</p>
+                  <p className="font-mono text-xs mt-1">email:clinic1@test.com</p>
+                  <p className="font-mono text-xs">email:clinic2@test.com</p>
+                  <p className="font-mono text-xs">password: 12345678</p>
                 </div>
               </CardContent>
             </TabsContent>

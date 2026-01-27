@@ -11,7 +11,7 @@ export const mockClinics: Clinic[] = [
     contactPerson: 'Dr. Priya Sharma',
     phone: '+91-9876543210',
     email: 'priya@sevasadan.org'
-  },
+  },     
   {
     id: 'clinic-2',
     name: 'Gram Swasthya Kendra',
