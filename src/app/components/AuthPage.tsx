@@ -9,6 +9,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/ta
 import { Building2, Heart, Users } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { auth, db } from "@/lib/firebase";
+import { doc, setDoc, getDoc } from "firebase/firestore";
+
+
+
 interface AuthPageProps {
   clinics: Clinic[];
   onLogin: (clinic: Clinic) => void;
@@ -31,28 +37,68 @@ export function AuthPage({ clinics, onLogin, onRegister }: AuthPageProps) {
   const [regEmail, setRegEmail] = useState('');
   const [regPassword, setRegPassword] = useState('');
 
-  const handleLogin = () => {
-    if (!loginEmail || !loginPassword) {
-      toast.error('Please enter email and password');
+  const handleLogin = async () => {
+  console.log("LOGIN CLICKED");
+
+  if (!loginEmail || !loginPassword) {
+    toast.error("Please enter email and password");
+    return;
+  }
+
+  try {
+    // 1️⃣ Firebase authentication
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      loginEmail,
+      loginPassword
+    );
+
+    const user = userCredential.user;
+
+    // 2️⃣ Fetch clinic profile from Firestore
+    const clinicRef = doc(db, "clinics", user.uid);
+    const clinicSnap = await getDoc(clinicRef);
+
+    if (!clinicSnap.exists()) {
+      toast.error("Clinic profile not found");
       return;
     }
 
-    // Find clinic by email (demo mode)
-    const clinic = clinics.find(c => c.email.toLowerCase() === loginEmail.toLowerCase());
-    if (clinic) {
-      onLogin(clinic);
-      toast.success(`Welcome back, ${clinic.name}!`);
-    } else {
-      toast.error('Invalid credentials. Try: priya@sevasadan.org');
-    }
-  };
+    const clinicData = clinicSnap.data();
 
-  const handleRegister = () => {
-    if (!regName || !regLocation || !regDistrict || !regState || !regContactPerson || !regPhone || !regEmail || !regPassword) {
-      toast.error('Please fill in all fields');
-      return;
-    }
+    // 3️⃣ Send real clinic data to app state
+    onLogin({
+      id: user.uid,
+      ...clinicData,
+    } as Clinic);
 
+    toast.success(`Welcome back, ${clinicData.name}!`);
+
+  } catch (error: any) {
+    console.error(error);
+    toast.error(error.message);
+  }
+};
+
+
+const handleRegister = async () => {
+  console.log("REGISTER CLICKED");
+  if (!regName || !regLocation || !regDistrict || !regState || !regContactPerson || !regPhone || !regEmail || !regPassword) {
+    toast.error('Please fill in all fields');
+    return;
+  }
+
+  try {
+    // 1️⃣ Create Firebase Auth account
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      regEmail,
+      regPassword
+    );
+
+    const user = userCredential.user;
+
+    // 2️⃣ Save clinic profile in Firestore
     const newClinic: Omit<Clinic, 'id'> = {
       name: regName,
       type: regType,
@@ -64,9 +110,15 @@ export function AuthPage({ clinics, onLogin, onRegister }: AuthPageProps) {
       email: regEmail
     };
 
-    onRegister(newClinic);
-    toast.success('Registration successful! Please login.');
-  };
+    await setDoc(doc(db, "clinics", user.uid), newClinic);
+
+    toast.success("Clinic registered successfully! Please login.");
+
+  } catch (error: any) {
+    toast.error(error.message);
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
@@ -135,7 +187,7 @@ export function AuthPage({ clinics, onLogin, onRegister }: AuthPageProps) {
                   <Input
                     id="login-email"
                     type="email"
-                    placeholder="clinic@example.com"
+                    placeholder="enter any one demo mail from below"
                     value={loginEmail}
                     onChange={(e) => setLoginEmail(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
@@ -271,7 +323,7 @@ export function AuthPage({ clinics, onLogin, onRegister }: AuthPageProps) {
         </Card>
 
         <div className="mt-6 text-center text-sm text-gray-600">
-          <p>Part of India's Digital Health Mission</p>
+          
           <p className="mt-1">Reducing pharmaceutical waste • Saving lives</p>
         </div>
       </div>
