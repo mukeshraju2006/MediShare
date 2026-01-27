@@ -146,7 +146,7 @@ export function AuthPage({ clinics, onLogin, onRegister }: AuthPageProps) {
                   <Input
                     id="login-password"
                     type="password"
-                    placeholder="••••••••"
+                    placeholder="type anything and enter"
                     value={loginPassword}
                     onChange={(e) => setLoginPassword(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
