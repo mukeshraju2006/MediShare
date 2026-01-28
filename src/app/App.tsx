@@ -46,6 +46,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+
+
 export default function App() {
   const [selectedClinic, setSelectedClinic] = useState<Clinic | null>(null);
 
@@ -132,14 +134,23 @@ export default function App() {
   };
 
   // 📦 INVENTORY
-  const handleAddInventory = (item: Omit<InventoryItem, "id" | "addedDate">) => {
-    const newItem: InventoryItem = {
+ const handleAddInventory = async (
+  item: Omit<InventoryItem, "id" | "addedDate">
+) => {
+  const docRef = await addDoc(collection(db, "inventory"), {
+    ...item,
+    addedDate: serverTimestamp()
+  });
+
+  setInventory(prev => [
+    ...prev,
+    {
       ...item,
-      id: `inv-${Date.now()}`,
+      id: docRef.id,
       addedDate: new Date()
-    };
-    setInventory([...inventory, newItem]);
-  };
+    }
+  ]);
+};
 
   // 📈 SURPLUS
   const handlePostSurplus = (posting: Omit<SurplusPosting, "id" | "postedDate">) => {
