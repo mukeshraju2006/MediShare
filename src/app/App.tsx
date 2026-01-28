@@ -124,14 +124,20 @@ export default function App() {
   };
 
   // 💊 MEDICINES
-  const handleAddMedicine = (medicineData: Omit<Medicine, "id">): Medicine => {
-    const newMedicine: Medicine = {
-      ...medicineData,
-      id: `med-${Date.now()}`
-    };
-    setMedicines([...medicines, newMedicine]);
-    return newMedicine;
+  const handleAddMedicine = async (
+  medicineData: Omit<Medicine, "id">
+): Promise<Medicine> => {
+  const docRef = await addDoc(collection(db, "medicines"), medicineData);
+
+  const newMedicine: Medicine = {
+    ...medicineData,
+    id: docRef.id
   };
+
+  setMedicines(prev => [...prev, newMedicine]);
+  return newMedicine;
+};
+
 
   // 📦 INVENTORY
  const handleAddInventory = async (

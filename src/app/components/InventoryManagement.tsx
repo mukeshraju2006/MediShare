@@ -16,7 +16,8 @@ interface InventoryManagementProps {
   inventory: InventoryItem[];
   medicines: Medicine[];
   onAddInventory: (item: Omit<InventoryItem, 'id' | 'addedDate'>) => void;
-  onAddMedicine: (medicine: Omit<Medicine, 'id'>) => Medicine;
+  onAddMedicine: (medicine: Omit<Medicine, "id">) => Promise<Medicine>;
+
 }
 
 /* 🔧 Universal date converter (handles Date, Firestore Timestamp, string) */
@@ -44,7 +45,8 @@ export function InventoryManagement({ clinic, inventory, medicines, onAddInvento
 
   const clinicInventory = inventory.filter(item => item.clinicId === clinic.id);
 
-  const handleAddInventory = () => {
+  const handleAddInventory = async () => {
+
     let medicineId = selectedMedicine;
 
     if (isManualEntry) {
@@ -53,7 +55,7 @@ export function InventoryManagement({ clinic, inventory, medicines, onAddInvento
         return;
       }
 
-      const newMedicine = onAddMedicine({
+      const newMedicine = await onAddMedicine({
         name: manualMedicineName,
         genericName: manualGenericName,
         category: manualCategory,
@@ -61,8 +63,10 @@ export function InventoryManagement({ clinic, inventory, medicines, onAddInvento
         manufacturer: manualManufacturer,
         priority: manualPriority
       });
-
       medicineId = newMedicine.id;
+
+
+      
     }
 
     if (!medicineId || !batchNumber || !quantity || !expiryDate) {
